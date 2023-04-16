@@ -6,8 +6,18 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.http import HttpResponse
 
-def hello(request):
-    return HttpResponse("Hello, world!")
+from django.shortcuts import render, redirect
+from .forms import SignUpForm
+
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = SignUpForm()
+    return render(request, 'signup.html', {'form': form})
 
 def homepage(request):
     return render(request, 'homepage.html')
