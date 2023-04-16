@@ -1,11 +1,14 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block content %}
-  <div class="jumbotron">
+  <div class="jumbotron" style="position: relative;">
     <h1 class="display-4">Welcome to My Auction Site!</h1>
     <p class="lead">Browse our latest listings and find great deals on all sorts of items.</p>
     <hr class="my-4">
     <p>Ready to get started? Click the button below to log in or create an account.</p>
     <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Log in or Create Account</a>
+    <img src="{% static 'img/logo.png' %}" alt="Logo" style="position: absolute; top: 10px; right: 10px;">
   </div>
 {% endblock %}
