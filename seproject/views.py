@@ -9,6 +9,9 @@ from django.http import HttpResponse
 def hello(request):
     return HttpResponse("Hello, world!")
 
+def homepage(request):
+    return render(request, 'homepage.html')
+
 def login(request):
     return render(request, 'login.html')
 
