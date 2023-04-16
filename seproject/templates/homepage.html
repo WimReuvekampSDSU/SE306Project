@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block content %}
   <div class="jumbotron">
     <h1 class="display-4">Welcome to My Auction Site!</h1>
@@ -7,5 +9,6 @@
     <hr class="my-4">
     <p>Ready to get started? Click the button below to log in or create an account.</p>
     <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Log in or Create Account</a>
+    <img src="{% static 'logo.png' %}" alt="Logo" class="float-right" style="width: 150px; height: 150px; object-fit: contain; margin: 10px;">
   </div>
 {% endblock %}
