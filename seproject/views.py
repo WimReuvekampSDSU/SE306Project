@@ -4,6 +4,10 @@ from django.shortcuts import render
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.http import HttpResponse
+
+def hello(request):
+    return HttpResponse("Hello, world!")
 
 def login(request):
     return render(request, 'login.html')
