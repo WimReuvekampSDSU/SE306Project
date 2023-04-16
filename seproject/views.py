@@ -6,6 +6,11 @@ from .forms import SignUpForm
 def homepage(request):
     return render(request, 'homepage.html')
 
+def browse_listings(request):
+    #listings = Listing.objects.all()
+    #context = {'listings': listings}
+    return render(request, 'browse_listings.html')
+
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
