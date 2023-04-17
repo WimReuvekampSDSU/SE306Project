@@ -1,55 +1,33 @@
 from django.db import models
 
-# Create your models here.
-from django.db import models
-from django.contrib.auth.models import AbstractUser
-
-class CustomUser(AbstractUser):
-    # Add any additional fields or methods you want for your custom user model
-    # ...
-    
-    # Fix naming clash with auth.User.groups
-    groups = models.ManyToManyField(
-        'auth.Group',
-        blank=True,
-        related_name='customuser_set',
-        related_query_name='customuser',
-    )
-
-    # Fix naming clash with auth.User.user_permissions
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        blank=True,
-        related_name='customuser_set',
-        related_query_name='customuser',
-    )
-
-from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, username, password=None, **kwargs):
+    def create_user(self, email, username, password=None):
         if not email:
-            raise ValueError('Users must have an email address')
-
-        if not username:
-            raise ValueError('Users must have a username')
-
-        user = self.model(email=self.normalize_email(email), username=username, **kwargs)
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, username=username)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, username, password=None, **kwargs):
-        user = self.create_user(email=email, username=username, password=password, **kwargs)
+    def create_superuser(self, email, username, password=None):
+        user = self.create_user(
+            email=email,
+            username=username,
+            password=password,
+        )
         user.is_staff = True
         user.is_superuser = True
         user.save(using=self._db)
         return user
 
-class User(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(verbose_name='email address', max_length=255, unique=True)
+class User(AbstractBaseUser):
+    email = models.EmailField(unique=True)
     username = models.CharField(max_length=30, unique=True)
+    first_name = models.CharField(max_length=100, default='')
+    last_name = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -61,11 +39,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-    def get_full_name(self):
-        return self.email
+    def has_perm(self, perm, obj=None):
+        return True
 
-    def get_short_name(self):
-        return self.email
+    def has_module_perms(self, app_label):
+        return True
+
 
 class Item(models.Model):
     title = models.CharField(max_length=200)

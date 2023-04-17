@@ -81,7 +81,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'dndtech',
         'USER': 'postgres',
-        'PASSWORD': 'password',
+        'PASSWORD': '1Qwerasdf',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -130,4 +130,4 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = 'seproject.CustomUser'
+AUTH_USER_MODEL = 'seproject.User'
