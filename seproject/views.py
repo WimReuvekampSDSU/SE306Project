@@ -5,15 +5,21 @@ from django.contrib.auth import get_user_model
 from .forms import SignUpForm
 
 
-User = get_user_model()
+#User = get_user_model()
 
 
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request)
+            user = form.save(commit=False)
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            email = form.cleaned_data['email']
+            user.set_password(password)
+            user.save()
+            authenticated_user = authenticate(username=username, password=password)
+            login(request, authenticated_user)
             return redirect('home')
     else:
         form = SignUpForm()
