@@ -5,7 +5,9 @@ from .forms import SignUpForm
 from .models import Item
 from django.utils import timezone
 import random
-
+from django.core.mail import send_mail
+from django.conf import settings
+from .forms import ContactForm
 
 #User = get_user_model()
 
@@ -111,3 +113,21 @@ from .models import Item
 def item_detail(request, pk):
     item = get_object_or_404(Item, pk=pk)
     return render(request, 'item_detail.html', {'item': item})
+
+def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            message = form.cleaned_data['message']
+            subject = f'New message from {name}'
+            message = f'From: {email}\n\n{message}'
+            from_email = settings.DEFAULT_FROM_EMAIL
+            recipient_list = [settings.CONTACT_EMAIL]
+            send_mail(subject, message, from_email, recipient_list)
+            messages.success(request, 'Thank you for your message. We will be in touch shortly.')
+    else:
+        form = ContactForm()
+
+    return render(request, 'contact.html', {'form': form})
