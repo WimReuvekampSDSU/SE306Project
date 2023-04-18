@@ -17,8 +17,7 @@ def signup(request):
             user.set_password(password)
             user.save()
             authenticated_user = authenticate(username=username, password=password)
-            login(request, authenticated_user)
-            return redirect('home')
+            return redirect('login')
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
