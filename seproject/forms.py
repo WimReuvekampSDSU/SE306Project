@@ -21,3 +21,10 @@ class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
         fields = ['title', 'description', 'price', 'image', 'category']
+
+from .models import Category
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')

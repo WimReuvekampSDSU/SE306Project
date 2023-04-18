@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 from .forms import SignUpForm
 
 
@@ -65,3 +66,38 @@ def list_item(request):
     else:
         form = ItemForm()
     return render(request, 'list_item.html', {'form': form})
+
+from .models import Category
+from .forms import CategoryForm
+@login_required
+def add_category(request):
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('list_item')  # redirect to the 'add_item' view
+    else:
+        form = CategoryForm()
+    return render(request, 'category_list.html', {'form': form})
+
+@login_required
+def category_list(request):
+    categories = Category.objects.all()
+
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('category_list')
+    else:
+        form = CategoryForm()
+
+    context = {'categories': categories, 'form': form}
+    return render(request, 'category_list.html', context)
+
+def category_delete(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    if request.method == 'POST':
+        category.delete()
+        messages.success(request, 'Category deleted successfully.')
+    return redirect('category_list')
