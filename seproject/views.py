@@ -49,3 +49,19 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('homepage')
+
+from django.contrib.auth.decorators import login_required
+from .forms import ItemForm
+
+@login_required
+def list_item(request):
+    if request.method == 'POST':
+        form = ItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.user = request.user
+            item.save()
+            return redirect('item_detail', pk=item.pk)
+    else:
+        form = ItemForm()
+    return render(request, 'list_item.html', {'form': form})
