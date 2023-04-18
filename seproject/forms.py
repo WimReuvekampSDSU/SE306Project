@@ -28,3 +28,8 @@ class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
         fields = ('name', 'slug')
+
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=100, label='Your Name')
+    email = forms.EmailField(max_length=100, label='Your Email')
+    message = forms.CharField(widget=forms.Textarea, label='Your Message')
