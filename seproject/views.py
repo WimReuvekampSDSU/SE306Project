@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import SignUpForm
+from .models import Item
+from django.utils import timezone
+import random
 
 
 #User = get_user_model()
@@ -27,9 +30,10 @@ def homepage(request):
     return render(request, 'homepage.html')
 
 def browse_listings(request):
-    #listings = Listing.objects.all()
-    #context = {'listings': listings}
-    return render(request, 'browse_listings.html')
+    items = Item.objects.all()
+    random_items = random.sample(list(items), min(len(items), 8))
+    context = {'items': random_items}
+    return render(request, 'browse_listings.html', context)
 
 from .forms import LoginForm
 
@@ -101,3 +105,9 @@ def category_delete(request, category_id):
         category.delete()
         messages.success(request, 'Category deleted successfully.')
     return redirect('category_list')
+
+from .models import Item
+
+def item_detail(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    return render(request, 'item_detail.html', {'item': item})
