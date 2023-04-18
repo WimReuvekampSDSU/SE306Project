@@ -9,3 +9,8 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = get_user_model() # use the custom User model
         fields = ('username', 'email', 'password1', 'password2')
+
+from django.contrib.auth.forms import AuthenticationForm
+
+class LoginForm(AuthenticationForm):
+    pass

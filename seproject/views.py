@@ -1,7 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, login, logout
 from .forms import SignUpForm
 
 
@@ -14,7 +12,7 @@ def signup(request):
         if form.is_valid():
             user = form.save(commit=False)
             username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
+            password = form.cleaned_data['password1']
             email = form.cleaned_data['email']
             user.set_password(password)
             user.save()
@@ -33,15 +31,22 @@ def browse_listings(request):
     #context = {'listings': listings}
     return render(request, 'browse_listings.html')
 
-def login(request):
+from .forms import LoginForm
+
+def login_view(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            messages.success(request, f'You are now logged in as {username}!')
-            return redirect('homepage')
-        else:
-            messages.error(request, 'Invalid username or password.')
-    return render(request, 'login.html')
+        form = LoginForm(request, request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('homepage')  # or wherever you want to redirect the user
+    else:
+        form = LoginForm()
+    return render(request, 'login.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    return redirect('homepage')
