@@ -61,6 +61,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def has_module_perms(self, app_label):
         return True
 
+from django.contrib.auth.models import User
 from django.conf import settings
 
 class Item(models.Model):
@@ -70,6 +71,7 @@ class Item(models.Model):
     image = models.ImageField(upload_to='item_images/')
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     quantity = models.IntegerField()
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title

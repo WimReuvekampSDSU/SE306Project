@@ -65,12 +65,13 @@ def list_item(request):
         form = ItemForm(request.POST, request.FILES)
         if form.is_valid():
             item = form.save(commit=False)
-            item.user = request.user
+            item.seller = request.user
             item.save()
             return redirect('item_detail', pk=item.pk)
     else:
         form = ItemForm()
     return render(request, 'list_item.html', {'form': form})
+
 
 from .models import Category
 from .forms import CategoryForm
