@@ -169,3 +169,17 @@ def delete_item(request, pk):
         return redirect('my_items')
     context = {'item': item}
     return render(request, 'delete_item.html', context)
+
+from .models import PurchasedItem
+@login_required
+def purchase_item(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    item.quantity -= 1
+    item.save()
+    PurchasedItem.objects.create(item=item, buyer=request.user)
+    return render(request, 'purchase_confirmation.html', {'item': item})
+
+@login_required
+def purchase_history(request):
+    history = PurchasedItem.objects.filter(buyer=request.user)
+    return render(request, 'purchase_history.html', {'history': history})
