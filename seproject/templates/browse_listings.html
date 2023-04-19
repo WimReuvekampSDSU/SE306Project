@@ -3,6 +3,7 @@
 {% block content %}
   <div class="recommended-container">
     <h2>Recommended Listings</h2>
+    <div class="item-container">
     {% for item in recommended_items|slice:":4" %}
       <a href="{% url 'item_detail' pk=item.id %}" class="item-box">
         <img src="{{ item.image.url }}" class="item-image" alt="{{ item.title }}">
@@ -10,6 +11,7 @@
         <div class="item-price">${{ item.price }}</div>
       </a>
     {% endfor %}
+    </div>
   </div>
   <div class="other-container">
     <h2>Other Listings</h2>

@@ -251,9 +251,20 @@ def update_user_category_preferences(user):
         )
 
 def recommended_items(user):
+    if not user.is_authenticated:
+        items = Item.objects.all()
+        recommended_items = []
+        recommended_items = random.sample(list(items), min(len(items), 4))
+        return recommended_items
     user_category_preferences = UserCategoryPreference.objects.filter(user=user).exclude(occurrence_count=0)
     total_occurrences = sum([preference.occurrence_count for preference in user_category_preferences])
     
+    if total_occurrences == 0:
+        items = Item.objects.all()
+        recommended_items = []
+        recommended_items = random.sample(list(items), min(len(items), 4))
+        return recommended_items
+
     # Create a list of categories and their corresponding probabilities based on the user's preferences
     category_probabilities = []
     for preference in user_category_preferences:
@@ -275,5 +286,5 @@ def recommended_items(user):
             if not category_probabilities:
                 # If there are no more categories to choose from, exit the loop
                 break
-    
+
     return recommended_items
