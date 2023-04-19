@@ -7,6 +7,7 @@ import random
 from django.core.mail import send_mail
 from django.conf import settings
 from .forms import ContactForm
+from django.views.decorators.http import require_http_methods
 
 #User = get_user_model()
 
@@ -131,3 +132,34 @@ def contact(request):
         form = ContactForm()
 
     return render(request, 'contact.html', {'form': form})
+
+@login_required
+def my_items(request):
+    items = Item.objects.filter(seller=request.user)
+    return render(request, 'my_items.html', {'items': items})
+
+
+@login_required
+def edit_item(request, pk):
+    item = get_object_or_404(Item, pk=pk, seller=request.user)
+
+    if request.method == 'POST':
+        form = ItemForm(request.POST, request.FILES, instance=item)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your item has been updated!')
+            return redirect('my_items')
+    else:
+        form = ItemForm(instance=item)
+
+    return render(request, 'edit_item.html', {'form': form, 'item': item})
+
+@login_required
+def delete_item(request, pk):
+    item = get_object_or_404(Item, pk=pk, seller=request.user)
+    if request.method == 'POST':
+        item.delete()
+        messages.success(request, 'Item has been deleted!')
+        return redirect('my_items')
+    return render(request, 'delete_item.html', {'item': item})
+

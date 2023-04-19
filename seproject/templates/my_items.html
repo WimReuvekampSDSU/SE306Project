@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>My Listed Items</h2>
+  {% if items %}
+    <div class="row">
+      {% for item in items %}
+        <div class="col-md-4">
+          <div class="card mb-4 box-shadow">
+            {% if item.image %}
+              <img class="card-img-top" src="{{ item.image.url }}" style="object-fit: cover; width: 100%; height: 300px;">
+            {% else %}
+              <div class="no-image" style="height: 300px;"></div>
+            {% endif %}
+            <div class="card-body">
+              <h4 class="card-title">{{ item.title }}</h4>
+              <p class="card-text">Price: ${{ item.price }}</p>
+              <p class="card-text"># in Stock: {{ item.quantity }}</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <a href="{% url 'edit_item' pk=item.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                  <a href="{% url 'delete_item' pk=item.pk %}" class="btn btn-sm btn-outline-secondary">Delete</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>You have no items currently listed!</p>
+    <a href="{% url 'list_item' %}">List an Item</a>
+  {% endif %}
+{% endblock %}
