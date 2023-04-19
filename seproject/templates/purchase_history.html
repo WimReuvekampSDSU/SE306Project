@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Purchase History</h2>
+  {% if purchased_items %}
+    <ul>
+      {% for purchased_item in purchased_items %}
+        <li>
+          <strong>Title:</strong> {{ purchased_item.item.title }}<br>
+          <strong>Price:</strong> ${{ purchased_item.item.price }}<br>
+          <strong>Quantity:</strong> {{ purchased_item.item.quantity }}<br>
+          <strong>Date Purchased:</strong> {{ purchased_item.purchased_at }}<br>
+          <strong>Seller:</strong> {{ purchased_item.item.seller.username }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You haven't made any purchases yet!</p>
+  {% endif %}
+{% endblock %}

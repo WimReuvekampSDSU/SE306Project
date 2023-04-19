@@ -1,14 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import SignUpForm
-from .models import Item
 import random
 from django.core.mail import send_mail
 from django.conf import settings
-from .forms import ContactForm
-from django.views.decorators.http import require_http_methods
-
+from django.contrib.auth.decorators import login_required
+from django.forms import modelform_factory
+from .models import Item, PurchasedItem, Category
+from .forms import CategoryForm, ItemForm, LoginForm, ContactForm, SignUpForm
 #User = get_user_model()
 
 
@@ -37,8 +36,6 @@ def browse_listings(request):
     context = {'items': random_items}
     return render(request, 'browse_listings.html', context)
 
-from .forms import LoginForm
-
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request, request.POST)
@@ -57,9 +54,6 @@ def logout_view(request):
     logout(request)
     return redirect('homepage')
 
-from django.contrib.auth.decorators import login_required
-from .forms import ItemForm
-
 @login_required
 def list_item(request):
     if request.method == 'POST':
@@ -73,9 +67,6 @@ def list_item(request):
         form = ItemForm()
     return render(request, 'list_item.html', {'form': form})
 
-
-from .models import Category
-from .forms import CategoryForm
 @login_required
 def add_category(request):
     if request.method == 'POST':
@@ -109,8 +100,6 @@ def category_delete(request, category_id):
         messages.success(request, 'Category deleted successfully.')
     return redirect('category_list')
 
-from .models import Item
-
 def item_detail(request, pk):
     item = get_object_or_404(Item, pk=pk)
     return render(request, 'item_detail.html', {'item': item})
@@ -141,9 +130,6 @@ def my_items(request):
     }
     return render(request, 'my_items.html', context)
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.forms import modelform_factory
 @login_required
 def edit_item(request, pk):
     item = get_object_or_404(Item, pk=pk)
@@ -158,9 +144,6 @@ def edit_item(request, pk):
 
     return render(request, 'edit_item.html', {'form': form})
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-
 @login_required
 def delete_item(request, pk):
     item = get_object_or_404(Item, pk=pk)
@@ -170,40 +153,22 @@ def delete_item(request, pk):
     context = {'item': item}
     return render(request, 'delete_item.html', context)
 
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import Item
-
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-from .models import Item
-
 @login_required
-def buy_item(request, item_id):
-    item = get_object_or_404(Item, pk=item_id)
-
+def purchase_item(request, pk):
+    item = get_object_or_404(Item, pk=pk)
     if item.quantity > 0:
         # Reduce the item quantity by 1
         item.quantity -= 1
         item.save()
         messages.success(request, f"You have successfully purchased {item.title}.")
+        PurchasedItem.objects.create(item=item, buyer=request.user)
+        return render(request, 'purchase_confirmation.html', {'item': item})
     else:
         messages.warning(request, f"{item.title} is out of stock.")
-
-    # Redirect to the item detail page
-    return redirect('item_detail', pk=item.pk)
-
-from .models import PurchasedItem
-@login_required
-def purchase_item(request, pk):
-    item = get_object_or_404(Item, pk=pk)
-    item.quantity -= 1
-    item.save()
-    PurchasedItem.objects.create(item=item, buyer=request.user)
-    return render(request, 'purchase_confirmation.html', {'item': item})
+        return redirect('item_detail', pk=item.pk)
 
 @login_required
 def purchase_history(request):
-    history = PurchasedItem.objects.filter(buyer=request.user)
-    return render(request, 'purchase_history.html', {'history': history})
+    purchased_items = PurchasedItem.objects.filter(buyer=request.user)
+    context = {'purchased_items': purchased_items}
+    return render(request, 'purchase_history.html', context)
