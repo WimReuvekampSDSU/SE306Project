@@ -8,11 +8,13 @@ from .models import User
 admin.site.register(Item)
 
 admin.site.register(Category)
+from django.contrib import admin
+from django.contrib.auth import get_user_model
 
-
+User = get_user_model()
 class CustomUserAdmin(UserAdmin):
     model = User
-    list_display = ('email', 'username', 'is_staff', 'is_active', 'is_seller')
+    list_display = ('email', 'username', 'is_staff', 'is_active')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
@@ -23,7 +25,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'username', 'password1', 'password2', 'is_seller'),
+            'fields': ('email', 'username', 'password1', 'password2'),
         }),
     )
     search_fields = ('email',)
@@ -31,3 +33,5 @@ class CustomUserAdmin(UserAdmin):
     filter_horizontal = ()
 
 admin.site.register(User, CustomUserAdmin)
+
+
