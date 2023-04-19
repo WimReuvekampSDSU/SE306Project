@@ -18,4 +18,5 @@ urlpatterns = [
     path('my_items/delete_item/<int:pk>/', views.delete_item, name='delete_item'),
     path('buy/<int:pk>/', views.purchase_item, name='buy-item'),
     path('purchase_history/', views.purchase_history, name='purchase_history'),
+    path('purchase_history/<int:purchase_id>/review/', views.review_item, name='review_item'),
 ]

@@ -15,7 +15,7 @@ from django.contrib.auth.forms import AuthenticationForm
 class LoginForm(AuthenticationForm):
     pass
 
-from .models import Item, Category
+from .models import Item, Category, Review
 
 class ItemForm(forms.ModelForm):
     class Meta:
@@ -40,3 +40,12 @@ class ContactForm(forms.Form):
     name = forms.CharField(max_length=100, label='Your Name')
     email = forms.EmailField(max_length=100, label='Your Email')
     message = forms.CharField(widget=forms.Textarea, label='Your Message')
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.NumberInput(attrs={'min': 1, 'max': 5, 'step': 1}),
+            'comment': forms.Textarea(attrs={'rows': 4}),
+        }

@@ -1,10 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Item, PurchasedItem, Category, User
+from .models import Item, PurchasedItem, Category, User, Review
 
 # Register your models here.
 admin.site.register(Item)
 admin.site.register(PurchasedItem)
+admin.site.register(Review)
 
 admin.site.register(Category)
 from django.contrib import admin

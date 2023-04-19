@@ -12,6 +12,7 @@
     <p>Description: {{ item.description }}</p>
     <p>Category: {{ item.category }}</p>
     <p># in Stock: {{ item.quantity }}</p>
+    <p>Average Rating: {% if avg_rating %}{{ avg_rating|floatformat:1 }}{% else %}No ratings yet{% endif %}</p>
     {% if item.quantity > 0 %}
     <form method="post" action="{% url 'buy-item' item.id %}">
       {% csrf_token %}
@@ -36,6 +37,3 @@
   {% endfor %}
 </div>
 {% endblock %}
-
-
-

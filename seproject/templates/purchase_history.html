@@ -3,17 +3,27 @@
 {% block content %}
   <h2>Purchase History</h2>
   {% if purchased_items %}
-    <ul>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
       {% for purchased_item in purchased_items %}
-        <li>
-          <strong>Title:</strong> {{ purchased_item.item.title }}<br>
-          <strong>Price:</strong> ${{ purchased_item.item.price }}<br>
-          <strong>Quantity:</strong> {{ purchased_item.item.quantity }}<br>
-          <strong>Date Purchased:</strong> {{ purchased_item.purchased_at }}<br>
-          <strong>Seller:</strong> {{ purchased_item.item.seller.username }}
-        </li>
+        <div class="col-md-4">
+          <div class="card mb-4 box-shadow">
+            {% if purchased_item.item.image %}
+              <img src="{{ purchased_item.item.image.url }}" class="card-img-top" style="object-fit: cover; width: 100%; height: 300px;" alt="{{ purchased_item.item.title }}">
+            {% else %}
+              <div class="no-image" style="height: 300px;"></div>
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{ purchased_item.item.title }}</h5>
+              <p class="card-text">Price: ${{ purchased_item.item.price }}</p>
+              <p class="card-text">Quantity: 1</p>
+              <p class="card-text">Date Purchased: {{ purchased_item.purchased_at }}</p>
+              <p class="card-text">Seller: {{ purchased_item.item.seller.username }}</p>
+              <a href="{% url 'review_item' purchased_item.item.pk %}" class="btn btn-primary">Review Item</a>
+            </div>
+          </div>
+        </div>
       {% endfor %}
-    </ul>
+    </div>
   {% else %}
     <p>You haven't made any purchases yet!</p>
   {% endif %}

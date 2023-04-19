@@ -2,12 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 import random
+from django.db.models import Avg
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.forms import modelform_factory
-from .models import Item, PurchasedItem, Category
-from .forms import CategoryForm, ItemForm, LoginForm, ContactForm, SignUpForm
+from .models import Item, PurchasedItem, Category, Review
+from .forms import CategoryForm, ItemForm, LoginForm, ContactForm, SignUpForm, ReviewForm
 #User = get_user_model()
 
 
@@ -100,9 +101,12 @@ def category_delete(request, category_id):
         messages.success(request, 'Category deleted successfully.')
     return redirect('category_list')
 
+@login_required
 def item_detail(request, pk):
-    item = get_object_or_404(Item, pk=pk)
-    return render(request, 'item_detail.html', {'item': item})
+    item = get_object_or_404(Item, id=pk)
+    reviews = Review.objects.filter(item=item)
+    avg_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+    return render(request, 'item_detail.html', {'item': item, 'reviews': reviews, 'avg_rating': avg_rating})
 
 def contact(request):
     if request.method == 'POST':
@@ -172,3 +176,19 @@ def purchase_history(request):
     purchased_items = PurchasedItem.objects.filter(buyer=request.user)
     context = {'purchased_items': purchased_items}
     return render(request, 'purchase_history.html', context)
+
+@login_required
+def review_item(request, purchase_id):
+    purchase = get_object_or_404(PurchasedItem, pk=purchase_id, buyer=request.user)
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.item = purchase.item
+            review.buyer = request.user
+            review.save()
+            messages.success(request, 'Your review has been posted.')
+            return redirect('purchase_history')
+    else:
+        form = ReviewForm()
+    return render(request, 'review_item.html', {'form': form, 'item': purchase.item})
