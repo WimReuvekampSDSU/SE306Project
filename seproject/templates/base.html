@@ -60,7 +60,7 @@
           <a class="nav-link" href="{% url 'my_items'%}">My Listed Items</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">{{ user.username }}</a>
+          <a class="nav-link" href="{% url 'account' %}">{{ user.username }}</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'logout' %}">Logout</a>

@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
+  {% if user.is_authenticated %}
+    <h2>Welcome {{ user.username }}</h2>
+  {% endif %}
+  
   <div class="recommended-container">
     <h2>Recommended Listings</h2>
     {% for item in recommended_items|slice:":4" %}
@@ -10,21 +14,36 @@
         <div class="item-price">${{ item.price }}</div>
       </a>
     {% endfor %}
-  </div>
-  <div class="other-container">
-    <h2>Other Listings</h2>
-    <div class="items-container">
-      {% for item in items|slice:":8" %}
-        <a href="{% url 'item_detail' pk=item.id %}" class="item-box">
-          <img src="{{ item.image.url }}" class="item-image" alt="{{ item.title }}">
-          <div class="item-title">{{ item.title }}</div>
-          <div class="item-price">${{ item.price }}</div>
-        </a>
-      {% endfor %}
+    <div class="view-more">
+      <a href="{% url 'browse' %}" class="view-more-btn">View More Listings</a>
+      <a href="{% url 'my_items' %}" class="view-more-btn">View Your Listed Items</a>
     </div>
   </div>
 
   <style>
+    .recommended-container {
+      margin-top: 20px;
+    }
+
+    .view-more {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .view-more-btn {
+      padding: 10px 30px;
+      background-color: darkblue;
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      border-radius: 5px;
+    }
+
+    .view-more-btn:hover {
+      background-color: blue;
+    }
+
     .items-container {
       display: flex;
       flex-wrap: wrap;
@@ -76,6 +95,10 @@
       .item-box {
         width: calc(100% - 40px);
       }
+    }
+
+    .view-more-btn {
+        margin-right: 10px;
     }
   </style>
 {% endblock %}

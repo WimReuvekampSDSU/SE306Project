@@ -61,7 +61,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def has_module_perms(self, app_label):
         return True
 
-from django.contrib.auth.models import User
 from django.conf import settings
 
 class Item(models.Model):
@@ -105,3 +104,8 @@ class Review(models.Model):
     rating = models.IntegerField(choices=RATING_CHOICES)
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+class UserCategoryPreference(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    occurrence_count = models.IntegerField(default=0)

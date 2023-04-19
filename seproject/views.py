@@ -7,10 +7,30 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.forms import modelform_factory
-from .models import Item, PurchasedItem, Category, Review
+from .models import Item, PurchasedItem, Category, Review, UserCategoryPreference
 from .forms import CategoryForm, ItemForm, LoginForm, ContactForm, SignUpForm, ReviewForm
-#User = get_user_model()
+from django.contrib.auth.forms import PasswordChangeForm
 
+@login_required
+def account(request):
+    if request.method == 'POST':
+        # Update user info
+        request.user.username = request.POST['username']
+        request.user.email = request.POST['email']
+        request.user.save()
+
+        # Change password
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your password was successfully updated!')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        # Display current user info
+        form = PasswordChangeForm(user=request.user)
+
+    return render(request, 'account.html', {'form': form, 'user': request.user})
 
 def signup(request):
     if request.method == 'POST':
@@ -29,12 +49,16 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 def homepage(request):
-    return render(request, 'homepage.html')
+    if request.user.is_authenticated:
+        context = {'recommended_items' : recommended_items(request.user)}
+        return render(request, 'authenticated_homepage.html', context)
+    else:
+        return render(request, 'homepage.html')
 
 def browse_listings(request):
     items = Item.objects.all()
     random_items = random.sample(list(items), min(len(items), 8))
-    context = {'items': random_items}
+    context = {'items': random_items, 'recommended_items' : recommended_items(request.user)}
     return render(request, 'browse_listings.html', context)
 
 def login_view(request):
@@ -166,6 +190,7 @@ def purchase_item(request, pk):
         item.save()
         messages.success(request, f"You have successfully purchased {item.title}.")
         PurchasedItem.objects.create(item=item, buyer=request.user)
+        update_user_category_preferences(request.user)
         return render(request, 'purchase_confirmation.html', {'item': item})
     else:
         messages.warning(request, f"{item.title} is out of stock.")
@@ -192,3 +217,63 @@ def review_item(request, purchase_id):
     else:
         form = ReviewForm()
     return render(request, 'review_item.html', {'form': form, 'item': purchase.item})
+
+def update_user_category_preferences(user):
+    purchased_items = PurchasedItem.objects.filter(buyer=user)
+    user_category_preferences = UserCategoryPreference.objects.filter(user=user)
+    category_counts = {}
+
+    # Count occurrences of each category in the user's purchased items
+    for purchased_item in purchased_items:
+        category = purchased_item.item.category
+        if category in category_counts:
+            category_counts[category] += 1
+        else:
+            category_counts[category] = 1
+
+    # Update the occurrence counts in the UserCategoryPreference model
+    for user_category_preference in user_category_preferences:
+        category = user_category_preference.category
+        if category in category_counts:
+            user_category_preference.occurrence_count = category_counts[category]
+            user_category_preference.save()
+            del category_counts[category]
+        else:
+            user_category_preference.occurrence_count = 0
+            user_category_preference.save()
+
+    # Create new entries for any remaining categories
+    for category, count in category_counts.items():
+        UserCategoryPreference.objects.create(
+            user=user,
+            category=category,
+            occurrence_count=count
+        )
+
+def recommended_items(user):
+    user_category_preferences = UserCategoryPreference.objects.filter(user=user).exclude(occurrence_count=0)
+    total_occurrences = sum([preference.occurrence_count for preference in user_category_preferences])
+    
+    # Create a list of categories and their corresponding probabilities based on the user's preferences
+    category_probabilities = []
+    for preference in user_category_preferences:
+        category_probabilities.append((preference.category, preference.occurrence_count / total_occurrences))
+    
+    # Choose up to 4 items, ensuring no duplicates
+    recommended_items = []
+    while len(recommended_items) < 4:
+        # Choose a random category based on the category probabilities
+        chosen_category = random.choices([cp[0] for cp in category_probabilities], [cp[1] for cp in category_probabilities])[0]
+        
+        # Choose a random item from the chosen category that hasn't already been recommended
+        items_in_category = Item.objects.filter(category=chosen_category).exclude(id__in=[item.id for item in recommended_items])
+        if items_in_category:
+            recommended_items.append(random.choice(items_in_category))
+        else:
+            # If there are no items in the chosen category that haven't been recommended, remove that category from the list of choices
+            category_probabilities = [cp for cp in category_probabilities if cp[0] != chosen_category]
+            if not category_probabilities:
+                # If there are no more categories to choose from, exit the loop
+                break
+    
+    return recommended_items
