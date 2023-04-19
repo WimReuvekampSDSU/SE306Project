@@ -82,3 +82,12 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class PurchasedItem(models.Model):
+    item = models.ForeignKey('Item', on_delete=models.CASCADE)
+    buyer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    purchased_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Purchased Items'

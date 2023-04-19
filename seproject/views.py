@@ -194,4 +194,16 @@ def buy_item(request, item_id):
     # Redirect to the item detail page
     return redirect('item_detail', pk=item.pk)
 
+from .models import PurchasedItem
+@login_required
+def purchase_item(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    item.quantity -= 1
+    item.save()
+    PurchasedItem.objects.create(item=item, buyer=request.user)
+    return render(request, 'purchase_confirmation.html', {'item': item})
 
+@login_required
+def purchase_history(request):
+    history = PurchasedItem.objects.filter(buyer=request.user)
+    return render(request, 'purchase_history.html', {'history': history})
