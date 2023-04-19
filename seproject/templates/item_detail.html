@@ -12,7 +12,30 @@
     <p>Description: {{ item.description }}</p>
     <p>Category: {{ item.category }}</p>
     <p># in Stock: {{ item.quantity }}</p>
+    {% if item.quantity > 0 %}
+    <form method="post" action="{% url 'buy-item' item.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">Buy</button>
+    </form>
+    {% else %}
+    <p>Out of stock</p>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
+
+{% block messages %}
+<div class="messages">
+  {% for message in messages %}
+  <div class="{{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+
 

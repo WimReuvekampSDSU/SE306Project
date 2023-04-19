@@ -170,6 +170,30 @@ def delete_item(request, pk):
     context = {'item': item}
     return render(request, 'delete_item.html', context)
 
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Item
+
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import Item
+
+@login_required
+def buy_item(request, item_id):
+    item = get_object_or_404(Item, pk=item_id)
+
+    if item.quantity > 0:
+        # Reduce the item quantity by 1
+        item.quantity -= 1
+        item.save()
+        messages.success(request, f"You have successfully purchased {item.title}.")
+    else:
+        messages.warning(request, f"{item.title} is out of stock.")
+
+    # Redirect to the item detail page
+    return redirect('item_detail', pk=item.pk)
+
 from .models import PurchasedItem
 @login_required
 def purchase_item(request, pk):
