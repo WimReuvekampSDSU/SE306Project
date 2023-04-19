@@ -15,14 +15,21 @@ from django.contrib.auth.forms import AuthenticationForm
 class LoginForm(AuthenticationForm):
     pass
 
-from .models import Item
+from .models import Item, Category
 
 class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
-        fields = ['title', 'description', 'price', 'image', 'category']
+        fields = ['title', 'description', 'price', 'image', 'category', 'quantity']
 
-from .models import Category
+    def save(self, user=None, commit=True):
+        item = super().save(commit=False)
+        if user:
+            item.seller = user
+        if commit:
+            item.save()
+        return item
+
 
 class CategoryForm(forms.ModelForm):
     class Meta:
