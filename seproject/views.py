@@ -132,3 +132,40 @@ def contact(request):
         form = ContactForm()
 
     return render(request, 'contact.html', {'form': form})
+
+def my_items(request):
+    user = request.user
+    items = Item.objects.filter(seller=user)
+    context = {
+        'items': items
+    }
+    return render(request, 'my_items.html', context)
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.forms import modelform_factory
+@login_required
+def edit_item(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    ItemForm = modelform_factory(Item, exclude=[])
+    if request.method == 'POST':
+        form = ItemForm(request.POST, request.FILES, instance=item)
+        if form.is_valid():
+            form.save()
+            return redirect('item_detail', pk=pk)
+    else:
+        form = ItemForm(instance=item)
+
+    return render(request, 'edit_item.html', {'form': form})
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def delete_item(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    if request.method == 'POST':
+        item.delete()
+        return redirect('my_items')
+    context = {'item': item}
+    return render(request, 'delete_item.html', context)
