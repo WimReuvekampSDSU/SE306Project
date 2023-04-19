@@ -20,7 +20,7 @@ from .models import Item
 class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
-        fields = ['title', 'description', 'price', 'image', 'category']
+        fields = ['title', 'description', 'price', 'image', 'category', 'quantity']
 
 from .models import Category
 

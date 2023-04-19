@@ -61,6 +61,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def has_module_perms(self, app_label):
         return True
 
+from django.conf import settings
 
 class Item(models.Model):
     title = models.CharField(max_length=255)
@@ -68,6 +69,7 @@ class Item(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2)
     image = models.ImageField(upload_to='item_images/')
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
+    quantity = models.IntegerField()
 
     def __str__(self):
         return self.title

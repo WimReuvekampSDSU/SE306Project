@@ -3,7 +3,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import SignUpForm
 from .models import Item
-from django.utils import timezone
 import random
 from django.core.mail import send_mail
 from django.conf import settings
