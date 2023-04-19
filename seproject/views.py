@@ -10,6 +10,8 @@ from django.forms import modelform_factory
 from .models import Item, PurchasedItem, Category, Review, UserCategoryPreference
 from .forms import CategoryForm, ItemForm, LoginForm, ContactForm, SignUpForm, ReviewForm
 from django.contrib.auth.forms import PasswordChangeForm
+from django.urls import reverse_lazy
+
 
 @login_required
 def account(request):
@@ -49,17 +51,34 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 def homepage(request):
-    if request.user.is_authenticated:
-        context = {'recommended_items' : recommended_items(request.user)}
-        return render(request, 'authenticated_homepage.html', context)
-    else:
-        return render(request, 'homepage.html')
+    try:
+        if request.user.is_authenticated:
+            recommended = recommended_items(request.user)
+            context = {'recommended_items': recommended}
+            return render(request, "authenticated_homepage.html", context)
+    except Exception as e:
+            context = {'error_message': str(e)}
+            if request.user.is_authenticated:
+                return render(request, 'authenticated_homepage.html', context=None)
+            else:
+                return render(request, 'homepage.html')
+
+    return render(request, 'homepage.html')
+
 
 def browse_listings(request):
-    items = Item.objects.all()
-    random_items = random.sample(list(items), min(len(items), 8))
-    context = {'items': random_items, 'recommended_items' : recommended_items(request.user)}
-    return render(request, 'browse_listings.html', context)
+    try:
+        items = Item.objects.all()
+        random_items = random.sample(list(items), min(len(items), 8))
+        context = {'items': random_items, 'recommended_items' : recommended_items(request.user)}
+        return render(request, 'browse_listings.html', context)
+    except Exception as a:
+        context = {'error_message': str(a)}
+        items = Item.objects.all()
+        random_items = random.sample(list(items), min(len(items), 8))
+        context = {'items': random_items}
+        return render(request, 'browse_listings.html', context)
+        
 
 def login_view(request):
     if request.method == 'POST':
@@ -125,7 +144,7 @@ def category_delete(request, category_id):
         messages.success(request, 'Category deleted successfully.')
     return redirect('category_list')
 
-@login_required
+@login_required(login_url=reverse_lazy('login'))
 def item_detail(request, pk):
     item = get_object_or_404(Item, id=pk)
     reviews = Review.objects.filter(item=item)
@@ -286,5 +305,6 @@ def recommended_items(user):
             if not category_probabilities:
                 # If there are no more categories to choose from, exit the loop
                 break
-
+    
     return recommended_items
+
