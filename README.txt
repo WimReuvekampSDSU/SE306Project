@@ -42,7 +42,7 @@ last modified 04/26/2023
  - change user and password, if needed or as appropriate to correspond with your environment
  - 'localhost' and '5432' should remain unchanged
 
-9. 'python manage.py makemigrations'
+9. 'python manage.py makemigrations seproject'
 
 10. 'python manage.py migrate'
 
