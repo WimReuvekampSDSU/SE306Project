@@ -9,8 +9,9 @@ last modified 04/26/2023
 1. download or clone git repository to your machine
  - https://github.com/WimReuvekampSDSU/SE306Project.git
 
-2. open a virtual environment (such as VS Code)
- - this can also be used to clone git repository using the link
+2. download anaconda navigator then when install click in the navigator on vscode 
+   - https://www.anaconda.com/
+
 
 3. in a terminal, enter 'pip --version' (versions used in development: 23.1, 23.1.2)
  - most virtual environments for python already have this installed
