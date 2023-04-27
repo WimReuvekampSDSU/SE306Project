@@ -9,7 +9,7 @@ last modified 04/26/2023
 1. download or clone git repository to your machine
  - https://github.com/WimReuvekampSDSU/SE306Project.git
 
-2. download anaconda navigator then when install click in the navigator on vscode 
+2. download anaconda navigator then when install click in the navigator on vscode then clone the respository on to vscode. 
    - https://www.anaconda.com/
 
 
